@@ -22,7 +22,7 @@ posnet-api/
 │   └── cards.json         # Base de datos simulada en JSON
 ├── test.php               # Script para probar funcionamiento completo
 ├── README.md
-
+```
 ---
 
 ## 🚀 Instalación y ejecución
@@ -31,15 +31,15 @@ Cloná el repositorio:
 
 ```bash
 git clone https://github.com/tu-usuario/posnet-php-challenge.git
-cd posnet-php-challenge
-php test.php
+cd posnet-api
 ```
 
 Asegurate de tener PHP 7.4 o superior instalado.
 
 Ejecutá el script de prueba:
-
+```bash
 php test.php
+```
 
 ## 📦 Lógica de negocio
 
@@ -71,8 +71,8 @@ php test.php
 **Leandro Villalba**  
 Desarrollador Fullstack
 
-- [LinkedIn](https://linkedin.com/in/tu-perfil)
-- [GitHub](https://github.com/tu-usuario)
+- [LinkedIn](https://www.linkedin.com/in/leandro-villalba/)
+- [GitHub](https://github.com/VillalbaLeandro)
 
 ---
 
