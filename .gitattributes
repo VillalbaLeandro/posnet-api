@@ -1,2 +1,7 @@
-# Auto detect text files and perform LF normalization
+*.php linguist-language=PHP
+*.md linguist-documentation
+*.json linguist-generated
+README.md linguist-documentation
+
+# Normalización de texto cross-platform
 * text=auto

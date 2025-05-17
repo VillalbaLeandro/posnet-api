@@ -1,0 +1,10 @@
+[
+    {
+        "type": "VISA",
+        "bank": "Banco Naci\u00f3n",
+        "number": "12345678",
+        "limit": 67000,
+        "dni": "12345678",
+        "name": "Leandro Villalba"
+    }
+]

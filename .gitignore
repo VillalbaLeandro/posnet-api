@@ -1,0 +1,27 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno 
+.env
+
+# Archivos generados
+*.log
+
+# Datos temporales o de ejecución
+*.bak
+*.tmp
+*.swp
+
+# Archivos específicos de IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Archivos del sistema operativo
+ehthumbs.db
+Icon?
+
+# Git internal 
+.git/
