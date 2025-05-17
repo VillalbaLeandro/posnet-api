@@ -2,20 +2,20 @@
 
 require_once 'Card.php';
 require_once 'Ticket.php';
+require_once 'CardStorageInterface.php';
 
 class Posnet {
-    private string $dataFile;
+    private CardStorageInterface $storage;
 
-    public function __construct(string $dataFile = __DIR__ . '/../data/cards.json') {
-        $this->dataFile = $dataFile;
+    public function __construct(CardStorageInterface $storage) {
+        $this->storage = $storage;
     }
 
     // Método para registrar una nueva tarjeta
     public function registerCard(Card $card): void {
-        $cards = $this->loadCards();
+        $cards = $this->storage->loadCards();
 
         $updated = false;
-
         foreach ($cards as &$existingCard) {
             if ($existingCard['number'] === $card->getNumber()) {
                 $existingCard = $card->toArray(); // Actualiza datos del cliente o nuevo límite
@@ -23,13 +23,12 @@ class Posnet {
                 break;
             }
         }
-        
+
         if (!$updated) {
             $cards[] = $card->toArray(); // Tarjeta nueva
         }
-        
-        $this->saveCards($cards);
-        
+
+        $this->storage->saveCards($cards);
     }
 
     // Método para procesar un pago
@@ -38,26 +37,26 @@ class Posnet {
             throw new Exception("La cantidad de cuotas debe estar entre 1 y 6.");
         }
 
-        $cards = $this->loadCards();
+        $cards = $this->storage->loadCards();
         $found = false;
 
         foreach ($cards as &$cardData) {
             if ($cardData['number'] === $cardNumber) {
                 $found = true;
 
-                // Calcular recargo
-                $recargo = ($installments > 1) ? ($amount * (($installments - 1) * 0.03)) : 0;
-                $total = $amount + $recargo;
+                // Calcular recargo por cuotas
+                $surcharge = ($installments > 1) ? ($amount * (($installments - 1) * 0.03)) : 0;
+                $total = $amount + $surcharge;
 
                 if ($cardData['limit'] < $total) {
                     throw new Exception("La tarjeta no tiene límite suficiente para el pago.");
                 }
 
-                // Actualizar límite
+                // Actualizar límite disponible
                 $cardData['limit'] -= $total;
-                $this->saveCards($cards);
+                $this->storage->saveCards($cards);
 
-                // Crear y devolver ticket
+                // Retornar ticket de pago
                 return new Ticket(
                     $cardData['name'],
                     round($total, 2),
@@ -72,17 +71,5 @@ class Posnet {
         }
 
         throw new Exception("Error inesperado al procesar el pago.");
-    }
-
-    // Cargar tarjetas desde el archivo JSON
-    private function loadCards(): array {
-        if (!file_exists($this->dataFile)) return [];
-        $json = file_get_contents($this->dataFile);
-        return json_decode($json, true) ?? [];
-    }
-
-    // Guardar tarjetas en archivo JSON
-    private function saveCards(array $cards): void {
-        file_put_contents($this->dataFile, json_encode($cards, JSON_PRETTY_PRINT));
     }
 }

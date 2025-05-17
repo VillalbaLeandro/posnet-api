@@ -4,8 +4,23 @@ require_once 'classes/Client.php';
 require_once 'classes/Card.php';
 require_once 'classes/Ticket.php';
 require_once 'classes/Posnet.php';
+require_once 'classes/CardStorageInterface.php';
+require_once 'classes/JsonCardStorage.php';
+// require_once 'classes/MySQLCardStorage.php';
+// require_once 'db/Connection.php';
 
-$posnet = new Posnet();
+// ==============================
+//  SWITCH ENTRE JSON Y MYSQL
+// ==============================
+
+// - Usar almacenamiento JSON
+$storage = new JsonCardStorage();
+
+// - Usar almacenamiento MySQL:
+// $pdo = Connection::getInstance();
+// $storage = new MySQLCardStorage($pdo);
+
+$posnet = new Posnet($storage);
 
 function printHeader(string $title): void {
     echo "\n==============================\n";
