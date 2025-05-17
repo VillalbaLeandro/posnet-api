@@ -54,7 +54,7 @@ php test.php
 
 ---
 
-## 📆 Lógica de negocio
+## 📦 Lógica de negocio
 
 ### Registro de tarjeta:
 
@@ -74,7 +74,7 @@ php test.php
 
 ---
 
-## 🕹️ Almacenamiento desacoplado (switch JSON / MySQL)
+## 🔁 Almacenamiento desacoplado (switch JSON / MySQL)
 
 El sistema permite usar dos modos de almacenamiento:
 
@@ -118,7 +118,7 @@ new PDO('mysql:host=localhost;dbname=posnet;charset=utf8', 'usuario', 'clave');
 
 ---
 
-## 🔮 Casos cubiertos en `test.php`
+## 🧪 Casos cubiertos en `test.php`
 
 * ✅ Registro exitoso
 * ✅ Pago exitoso con recargo (cuotas > 1)
@@ -128,6 +128,19 @@ new PDO('mysql:host=localhost;dbname=posnet;charset=utf8', 'usuario', 'clave');
 * ❌ Cuotas fuera de rango
 * ❌ Límite insuficiente
 * ❌ Tarjeta no registrada
+
+---
+
+## 💡 Posibles mejoras futuras
+
+Aunque por tiempo estas funcionalidades no fueron implementadas, el sistema está estructurado para escalar. Algunas ideas de mejora:
+
+* Validación real del número de tarjeta con el **algoritmo de Luhn**.
+* Integración con una API externa que valide el tipo de tarjeta según su BIN.
+* Registro de transacciones exitosas con timestamp en una tabla/archivo adicional.
+* Implementación de tests unitarios automatizados con PHPUnit.
+* Autenticación básica y endpoints REST con Slim u otro microframework.
+* Web UI mínima para probar visualmente el sistema.
 
 ---
 
@@ -148,5 +161,4 @@ Desarrollador Fullstack
 * ✅ Robusto
 * ✅ Escalable
 * ✅ Profesional
-
-
+* 🧭 Preparado para continuar desarrollando nuevas funcionalidades
