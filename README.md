@@ -1,12 +1,12 @@
 # POSNET PHP Challenge – Devactiva
 
-Este proyecto es una implementación orientada a objetos de una API de POSNET que permite:
+Este proyecto es una implementación orientada a objetos de una API POSNET que permite:
 
 * Registrar tarjetas de crédito válidas (VISA o AMEX).
 * Procesar pagos con recargos por cuotas.
 * Validar límite de tarjeta disponible.
-* Generar un ticket detallado con los datos del cliente y pago.
-* Utilizar almacenamiento desacoplado: en archivo JSON o base de datos MySQL.
+* Generar un ticket con los datos del cliente y el pago.
+* Usar almacenamiento desacoplado: archivo JSON o base de datos MySQL.
 
 ---
 
@@ -14,137 +14,136 @@ Este proyecto es una implementación orientada a objetos de una API de POSNET qu
 
 ```
 posnet-api/
-├── classes/
-│   ├── Card.php                  # Representación y validación de tarjeta
-│   ├── Client.php                # Datos del titular de la tarjeta
-│   ├── Ticket.php                # Representación del resultado del pago
-│   ├── Posnet.php                # Lógica principal de registro y pago (usa storage inyectado)
-│   ├── CardStorageInterface.php  # Interfaz que define el contrato de almacenamiento
-│   ├── JsonCardStorage.php       # Implementación que almacena tarjetas en JSON
-│   └── MySQLCardStorage.php      # Implementación alternativa que usa base de datos
-├── data/
-│   ├── cards.json                # Base simulada si se usa JSON
-│   └── schema.sql                # Script para crear tabla MySQL
-├── db/
-│   └── Connection.php            # Clase singleton para conexión PDO
-├── test.php                      # Script de prueba completo con casos de éxito y error
-├── .gitignore
-├── .gitattributes
-└── README.md
+├── classes/                   # Lógica de negocio y modelos
+├── data/                      # Almacenamiento en JSON y SQL schema
+├── db/                        # Conexion PDO a MySQL
+├── api/                       # Endpoints HTTP (API REST)
+├── test.php                   # Tests en consola
 ```
 
 ---
 
-## 🚀 Instalación y ejecución
+## 🚀 Instalación y ejecución local
 
-1. Cloná el repositorio:
+Requiere PHP 7.4 o superior.
+
+1. Cloná el repo:
 
 ```bash
-git clone https://github.com/tu-usuario/posnet-php-challenge.git
+git clone https://github.com/TU_USUARIO/posnet-php-challenge.git
 cd posnet-api
 ```
 
-2. Asegurate de tener **PHP 7.4 o superior** instalado.
-
-3. Ejecutá el script:
+2. Ejecutá servidor local:
 
 ```bash
-php test.php
+php -S localhost:8000
+```
+
+3. Accedé a los endpoints desde Postman o `curl`:
+
+---
+
+## 📂 Endpoints disponibles
+
+### ➕ `POST /api/index.php?action=register`
+
+Registra una tarjeta.
+
+**Body JSON:**
+
+```json
+{
+  "type": "VISA",
+  "bank": "Banco Nación",
+  "number": "12345678",
+  "limit": 50000,
+  "dni": "12345678",
+  "first_name": "Leandro",
+  "last_name": "Villalba"
+}
+```
+
+**Respuesta:**
+
+```json
+{
+  "message": "Card registered successfully"
+}
 ```
 
 ---
 
-## 📦 Lógica de negocio
+### 💳 `POST /api/index.php?action=pay`
 
-### Registro de tarjeta:
+Procesa un pago con una tarjeta ya registrada.
 
-* Solo se aceptan tarjetas tipo **VISA** o **AMEX**.
-* El número debe ser exactamente de **8 dígitos**.
-* Se valida y guarda en el almacenamiento activo (JSON o DB).
+**Body JSON:**
 
-### Proceso de pago:
+```json
+{
+  "number": "12345678",
+  "amount": 10000,
+  "installments": 3
+}
+```
 
-* Recibe número de tarjeta, monto y cantidad de cuotas (1 a 6).
-* Si hay más de una cuota, aplica **3 % por cada cuota adicional**.
-* Verifica que la tarjeta tenga **límite suficiente**.
-* Si es exitoso:
+**Respuesta:**
 
-  * Se descuenta el total.
-  * Se genera un **ticket** con nombre del cliente, total y monto por cuota.
+```json
+{
+  "client": "Leandro Villalba",
+  "total_amount": 10600.0,
+  "installments": 3,
+  "installment_amount": 3533.33
+}
+```
 
 ---
 
-## 🔁 Almacenamiento desacoplado (switch JSON / MySQL)
+## 📊 Almacenamiento desacoplado
 
-El sistema permite usar dos modos de almacenamiento:
+La clase `Posnet` funciona con cualquier implementación de `CardStorageInterface`. Se puede usar:
 
-### Por defecto:
+### JSON (por defecto):
 
 ```php
 $storage = new JsonCardStorage();
 ```
 
-### Para usar base de datos MySQL:
+### MySQL:
 
 ```php
 $pdo = Connection::getInstance();
 $storage = new MySQLCardStorage($pdo);
 ```
 
-La clase `Posnet` no depende de dónde se almacenen las tarjetas. Esto permite escalar el sistema sin tocar la lógica principal.
-
----
-
-## 📊 Base de datos
-
-Si elegís usar MySQL, podés ejecutar el script en `data/schema.sql`:
+Script SQL: `data/schema.sql`
 
 ```sql
 CREATE TABLE cards (
   number CHAR(8) PRIMARY KEY,
-  type VARCHAR(10) NOT NULL,
-  bank VARCHAR(50) NOT NULL,
-  limit_amount FLOAT NOT NULL,
-  dni VARCHAR(20) NOT NULL,
-  name VARCHAR(100) NOT NULL
+  type VARCHAR(10),
+  bank VARCHAR(50),
+  limit_amount FLOAT,
+  dni VARCHAR(20),
+  name VARCHAR(100)
 );
 ```
 
-Configurable en `db/Connection.php`:
+---
 
-```php
-new PDO('mysql:host=localhost;dbname=posnet;charset=utf8', 'usuario', 'clave');
-```
+## 💡 Ideas para mejoras futuras
+
+* Validación de número de tarjeta con algoritmo de Luhn.
+* Detectar automáticamente la marca con una API externa (e.g. binlist.net).
+* Registro de transacciones con fecha.
+* Tests automatizados con PHPUnit.
+* Implementación de un microframework (Slim).
 
 ---
 
-## 🧪 Casos cubiertos en `test.php`
-
-* ✅ Registro exitoso
-* ✅ Pago exitoso con recargo (cuotas > 1)
-* ✅ Pago exitoso sin recargo (1 cuota)
-* ❌ Tipo de tarjeta inválido
-* ❌ Número de tarjeta inválido
-* ❌ Cuotas fuera de rango
-* ❌ Límite insuficiente
-* ❌ Tarjeta no registrada
-
----
-
-## 💡 Posibles mejoras futuras
-
-Aunque por tiempo estas funcionalidades no fueron implementadas, el sistema está estructurado para escalar. Algunas ideas de mejora:
-
-* Validación real del número de tarjeta con el **algoritmo de Luhn**.
-* Integración con una API externa que valide el tipo de tarjeta según su BIN.
-* Registro de transacciones exitosas con timestamp en una tabla/archivo adicional.
-* Implementación de tests unitarios automatizados con PHPUnit.
-* Autenticación básica y endpoints REST con Slim u otro microframework.
-* Web UI mínima para probar visualmente el sistema.
-
----
-
-## 🧠 Autor
+## 🧐 Autor
 
 **Leandro Villalba**
 Desarrollador Fullstack
@@ -157,8 +156,7 @@ Desarrollador Fullstack
 ## ✔️ Estado del proyecto
 
 * ✅ Funcional
+* ✅ API REST
 * ✅ Validado
 * ✅ Robusto
 * ✅ Escalable
-* ✅ Profesional
-* 🧭 Preparado para continuar desarrollando nuevas funcionalidades
